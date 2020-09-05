@@ -115,7 +115,7 @@ class _HomeState extends State<Home> {
 
 
   Widget _loadTabBar() {
-    FutureBuilder<UserSettings>(
+    return FutureBuilder<UserSettings>(
       future: load(),
       builder: (context, snapshot) {
         // Check for errors
