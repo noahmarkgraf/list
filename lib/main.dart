@@ -26,7 +26,7 @@ class App extends StatelessWidget {
           // Check for errors
           if (snapshot.hasError) {
             return Center(
-              child: Text('Fehler'),
+              child: Text('Fehler........'),
             );
           }
 
