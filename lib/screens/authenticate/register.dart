@@ -30,20 +30,6 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     return loading ? Loading() : Scaffold(
       backgroundColor: Colors.brown[100],
-      // appBar: AppBar(
-      //   backgroundColor: Colors.brown[400],
-      //   elevation: 0.0,
-      //   title: Text('Registrieren'),
-      //   actions: [
-      //     FlatButton.icon(
-      //       icon: Icon(Icons.person),
-      //       label: Text('Anmelden'),
-      //       onPressed: (){
-      //         widget.toggleView();
-      //       },
-      //     ),
-      //   ],
-      // ),
       body: ScrollableScreen(page: _registerScreen()).build(),
     );
   }

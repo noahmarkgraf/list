@@ -14,6 +14,8 @@ class DatabaseService {
   final CollectionReference userSettingsCollection = FirebaseFirestore.instance.collection('userSettings');
 
 
+
+
   //UserSetting update
   Future updateUserSettings(UserSettings userSettings) async {
     if(userSettings == null){
@@ -22,6 +24,7 @@ class DatabaseService {
     return await userSettingsCollection.doc(uid).set({
       'name': userSettings.name,
       'uid': userSettings.uid,
+      'email': userSettings.email,
     });
   }
 
@@ -33,6 +36,7 @@ class DatabaseService {
     UserSettings user = UserSettings();
     user.name = data['name'];
     user.uid = data['uid'];
+    user.email = data['email'];
     return user;
   }
 
@@ -158,4 +162,51 @@ class DatabaseService {
     purchase.userName = userSettingsUserName;
     return await purchasesUpdate(purchase);
   }
+
+
+
+
+
+  final CollectionReference listCollection = FirebaseFirestore.instance.collection('lists');
+
+
+  Future createList(String listName, String member) async {
+
+    return await listCollection.doc(uid).set({
+      "listName": listName,
+      "member": [member],
+    });
+  }
+
+
+  Future addMember(String name) async {
+    return await listCollection.doc(uid).update({
+      'member': FieldValue.arrayUnion(['$name'])
+    });
+  }
+
+
+
+  Future addPurchasetoList(String docId, Purchase purchase) async {
+    return await listCollection.doc(docId).collection('purchases').doc().set({
+      'name': purchase.name,
+      'userName': purchase.userName,
+      'date': purchase.date,
+    });
+  }
+
+
+  getAvailableLists(String email) async {
+    return await listCollection.where("member", arrayContains: email).snapshots();
+  }
+
+
+  
+  // getAvailableLists(String email) {
+  //   List<String> list = [];
+  //   listCollection.where("member", arrayContains: email).snapshots().listen((data) => data.docs.forEach(
+  //     (doc) => list.add(doc.data()['listName'])
+  //     ));
+  //   return list;
+  // }
 }

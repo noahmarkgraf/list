@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:list/screens/main_screen/main_screen.dart';
+import 'package:list/screens/load_userSettings.dart';
 import 'package:provider/provider.dart';
 import 'package:list/models/user.dart';
 import 'package:list/screens/authenticate/authenticate.dart';
@@ -19,7 +19,7 @@ class Wrapper extends StatelessWidget {
     if (user == null) {
       return Authenticate();
     } else {
-      return MainScreen();
+      return LoadUserSettings();
     }
   }
 }
