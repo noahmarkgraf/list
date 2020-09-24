@@ -178,22 +178,7 @@ class DatabaseService {
     });
   }
 
-
-  Future addMember(String name) async {
-    return await listCollection.doc(uid).update({
-      'member': FieldValue.arrayUnion(['$name'])
-    });
-  }
-
-
-
-  Future addPurchasetoList(String docId, Purchase purchase) async {
-    return await listCollection.doc(docId).collection('purchases').doc().set({
-      'name': purchase.name,
-      'userName': purchase.userName,
-      'date': purchase.date,
-    });
-  }
+  
 
 
   getAvailableLists(String email) async {
@@ -209,4 +194,95 @@ class DatabaseService {
   //     ));
   //   return list;
   // }
+}
+
+
+class DatabaseServicesWOuid {
+
+  final CollectionReference listCollection = FirebaseFirestore.instance.collection('lists');
+
+  getPurchaseList(String listId) async {
+    return await listCollection.doc(listId).collection('purchases').snapshots();
+  }
+
+
+
+  getPurchaseDoneList(String listId) async {
+    return await listCollection.doc(listId).collection('purchasesDone').snapshots();
+  }
+
+
+
+  Future addMember(String name, String listId) async {
+    return await listCollection.doc(listId).update({
+      'member': FieldValue.arrayUnion(['$name'])
+    });
+  }
+
+
+
+  Future createNewList(String listName, String member) async {
+
+    return await listCollection.doc().set({
+      "listName": listName,
+      "member": [member],
+    });
+  }
+
+
+  Future addPurchasetoList(String listId, Purchase purchase) async {
+    return await listCollection.doc(listId).collection('purchases').doc().set({
+      'name': purchase.name,
+      'userName': purchase.userName,
+      'date': purchase.date,
+    });
+  }
+
+
+  Future addPurchaseDonetoList(String listId, Purchase purchase) async {
+    return await listCollection.doc(listId).collection('purchasesDone').doc().set({
+      'name': purchase.name,
+      'userName': purchase.userName,
+      'date': purchase.date,
+    });
+  }
+
+
+
+
+  //delete purchase
+  Future deletePurchase(listId, docId) async {
+    return await listCollection.doc(listId).collection('purchases').doc(docId).delete();
+  }
+
+
+  Future closePurchase(String listId, Purchase purchase, String userSettingsUserName) async {
+    await deletePurchase( listId, purchase.id);
+    Purchase purchaseDone = Purchase();
+    String _date = MyDateTime().convertString(DateTime.now());
+    purchaseDone.name = purchase.name;
+    purchaseDone.id = purchase.id;
+    purchaseDone.date = _date;
+    purchaseDone.userName = userSettingsUserName;
+    return await addPurchaseDonetoList(listId, purchaseDone);
+  }
+
+
+
+  Future deletePurchaseDone(listId, docId) async {
+    return await listCollection.doc(listId).collection('purchasesDone').doc(docId).delete();
+  }
+
+
+  Future closePurchaseDone(String listId, Purchase purchaseDone, String userSettingsUserName) async {
+    await deletePurchaseDone( listId, purchaseDone.id);
+    Purchase purchase = Purchase();
+    String _date = MyDateTime().convertString(DateTime.now());
+    purchase.name = purchaseDone.name;
+    purchase.id = purchaseDone.id;
+    purchase.date = _date;
+    purchase.userName = userSettingsUserName;
+    return await addPurchasetoList(listId, purchase);
+  }
+
 }
