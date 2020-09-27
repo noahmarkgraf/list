@@ -41,6 +41,7 @@ class _ListMemberSettingsState extends State<ListMemberSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: Colors.black, //change your color here

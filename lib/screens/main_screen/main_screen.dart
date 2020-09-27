@@ -37,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
     String inputName;
     
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: Text('Listen', style: TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.w400)),
         centerTitle: true,
