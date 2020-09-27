@@ -175,13 +175,13 @@ class AvailableListTile extends StatelessWidget {
                       content: Text('Liste endgültig löschen?'),
                       actions: [
                         FlatButton(
-                          child: Text('Abbrechen'),
+                          child: Text('Abbrechen', style: TextStyle(color: Colors.black),),
                           onPressed: () async {
                             Navigator.pop(context);
                           },
                         ),
                         FlatButton(
-                          child: Text('Löschen'),
+                          child: Text('Löschen', style: TextStyle(color: Colors.red),),
                           onPressed: () async {
                             await DatabaseServicesWOuid().deleteList(listId);
                             Navigator.pop(context);
@@ -257,6 +257,12 @@ class AvailableListTile extends StatelessWidget {
         return AlertDialog(
           content: Text('Liste endgültig verlassen?'),
           actions: [
+            FlatButton(
+              child: Text('Abbrechen', style: TextStyle(color: Colors.black),),
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
             FlatButton(
               onPressed: () async {
                   await DatabaseServicesWOuid().deleteMember(userSettings.email, listId);
