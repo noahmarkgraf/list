@@ -25,15 +25,16 @@ class _PurchaseTabState extends State<PurchaseTab> {
 
     final _formKey = GlobalKey<FormState>();
 
-
     String inputName;
 
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: StreamBuilder(
         stream: widget.purchaseListStream,
         builder: (context, snapshot){
-          return snapshot.hasData ? ListView.builder(
+          return snapshot.hasData ? ListView.separated(
+            separatorBuilder: (context, index) => Divider(color: Colors.black, indent: 50, endIndent: 50, height: 1,),
             itemCount: snapshot.data.docs.length,
             itemBuilder: (context, index){
               Purchase purchase = Purchase();
@@ -109,10 +110,12 @@ class _PurchaseDoneTabState extends State<PurchaseDoneTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: StreamBuilder(
         stream: widget.purchaseDoneListStream,
         builder: (context, snapshot){
-          return snapshot.hasData ? ListView.builder(
+          return snapshot.hasData ? ListView.separated(
+            separatorBuilder: (context, index) => Divider(color: Colors.black, indent: 50, endIndent: 50, height: 1,),
             itemCount: snapshot.data.docs.length,
             itemBuilder: (context, index){
               Purchase purchase = Purchase();
@@ -144,7 +147,8 @@ class PurchaseListTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: 8.0),
       child: Card(
-        margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0),
+        elevation: 0,
+        margin: EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0),
         child: ListTile(
           leading: IconButton(
             onPressed: () async {
@@ -183,6 +187,7 @@ class PurchaseDoneListTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: 8.0),
       child: Card(
+        elevation: 0,
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0),
         child: ListTile(
           leading: IconButton(

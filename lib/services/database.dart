@@ -170,11 +170,13 @@ class DatabaseService {
   final CollectionReference listCollection = FirebaseFirestore.instance.collection('lists');
 
 
-  Future createList(String listName, String member) async {
+  Future createList(String listName, String email, String name) async {
 
     return await listCollection.doc(uid).set({
       "listName": listName,
-      "member": [member],
+      "member": [email],
+      "admin": email,
+      "adminName": name,
     });
   }
 
@@ -208,7 +210,12 @@ class DatabaseServicesWOuid {
 
 
   getPurchaseDoneList(String listId) async {
-    return await listCollection.doc(listId).collection('purchasesDone').snapshots();
+    return await listCollection.doc(listId).collection('purchasesDone').orderBy('name', descending: false).snapshots();
+  }
+
+
+  getListMember(String listId) async {
+    return await listCollection.doc(listId).snapshots();
   }
 
 
@@ -220,12 +227,21 @@ class DatabaseServicesWOuid {
   }
 
 
+  Future deleteMember(String name, String listId) async {
+    return await listCollection.doc(listId).update({
+      'member': FieldValue.arrayRemove([name]),
+    });
+  }
 
-  Future createNewList(String listName, String member) async {
+
+
+  Future createNewList(String listName, String email, String name) async {
 
     return await listCollection.doc().set({
       "listName": listName,
-      "member": [member],
+      "member": [email],
+      "admin": email,
+      "adminName": name,
     });
   }
 
@@ -283,6 +299,21 @@ class DatabaseServicesWOuid {
     purchase.date = _date;
     purchase.userName = userSettingsUserName;
     return await addPurchasetoList(listId, purchase);
+  }
+
+
+
+
+  Future deleteList(String listId) async {
+    return await listCollection.doc(listId).delete();
+  }
+
+
+
+  Future changelistName(String listId, String name) async {
+    return await listCollection.doc(listId).update({
+      "listName": name,
+    });
   }
 
 }

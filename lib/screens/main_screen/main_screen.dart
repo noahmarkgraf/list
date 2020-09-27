@@ -37,7 +37,11 @@ class _MainScreenState extends State<MainScreen> {
     String inputName;
     
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       appBar: AppBar(
+        title: Text('Listen', style: TextStyle(fontSize: 25, color: Colors.black, fontWeight: FontWeight.w400)),
+        centerTitle: true,
+        backgroundColor: Colors.teal[200],
         actions: <Widget>[
           RotatedBox(
             quarterTurns: 2,
@@ -59,7 +63,8 @@ class _MainScreenState extends State<MainScreen> {
           return snapshot.hasData ? ListView.builder(
             itemCount: snapshot.data.docs.length,
             itemBuilder: (context, index){
-              return AvailableListTile(listName: snapshot.data.docs[index].data()["listName"], listId: snapshot.data.docs[index].id, userSettings: widget.userSettings);
+              return AvailableListTile(listName: snapshot.data.docs[index].data()["listName"], listId: snapshot.data.docs[index].id, userSettings: widget.userSettings,
+                                    listBy: snapshot.data.docs[index].data()["adminName"]);
             }
           ) : Container();
         },
@@ -89,7 +94,7 @@ class _MainScreenState extends State<MainScreen> {
                     padding: EdgeInsets.fromLTRB(0, 0, 30, 30),
                     onPressed: () async {
                       if(_formKey.currentState.validate()) {
-                        await DatabaseServicesWOuid().createNewList(inputName.trim(), widget.userSettings.email);
+                        await DatabaseServicesWOuid().createNewList(inputName.trim(), widget.userSettings.email, widget.userSettings.name);
                         Navigator.pop(context);
                       }
                     },
@@ -115,74 +120,155 @@ class AvailableListTile extends StatelessWidget {
   final String listName;
   final String listId;
   final UserSettings userSettings;
-  AvailableListTile({ this.listName, this.listId, this.userSettings });
+  final String listBy;
+  AvailableListTile({ this.listName, this.listId, this.userSettings, this.listBy });
+
 
 
   @override
   Widget build(BuildContext context) {
 
 
-    String inputEmail;
-    final _formKey = GlobalKey<FormState>();
+    String shortListName = listName;
 
+
+
+    if(listName.length > 20) {
+      shortListName = listName.substring(0,19) + '...';
+    }
 
     return GestureDetector(
+      onLongPress: () async { 
+        listBy == userSettings.name ? _renameList(context) : _leaveList(context);
+      },
       onTap: (){
         Navigator.push(context, MaterialPageRoute(
           builder: (context) => ActualList(listId: listId, listName: listName, userSettings: userSettings,)
         ));
       },
       child: Container(
-        margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-        color: Colors.white70,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,),
+        margin: EdgeInsets.fromLTRB(10, 15, 10, 0), 
         padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
+            Icon(Icons.format_list_bulleted),
+            Column(
               children: [
-                Text('$listName', style: TextStyle(fontSize: 25),)
+                SizedBox(height: 10,),
+                Text('$shortListName', style: TextStyle(fontSize: 25)),
+                SizedBox(height: 5,),
+                Text('von $listBy'),
+                SizedBox(height: 10,),
               ],
             ),
-            IconButton(
+            listBy == userSettings.name ? IconButton(
               onPressed: (){
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
                       // title: Text('neuer Eintrag'),
-                      content: Form(
-                        key: _formKey,
-                        child: TextFormField(
-                          decoration: InputDecoration(hintText: 'Email des Teilnehmers'),
-                          validator: (val) => val.isEmpty ? '???' : null,
-                          autofocus: true,
-                          onChanged: (String value) {
-                            inputEmail = value;
+                      content: Text('Liste endgültig löschen?'),
+                      actions: [
+                        FlatButton(
+                          child: Text('Abbrechen'),
+                          onPressed: () async {
+                            Navigator.pop(context);
                           },
                         ),
-                      ),
-                      actions: [
-                        IconButton(
-                          padding: EdgeInsets.fromLTRB(0, 0, 30, 30),
+                        FlatButton(
+                          child: Text('Löschen'),
                           onPressed: () async {
-                            if(_formKey.currentState.validate()) {
-                              await DatabaseServicesWOuid().addMember(inputEmail.trim(), listId);
-                              Navigator.pop(context);
-                            }
+                            await DatabaseServicesWOuid().deleteList(listId);
+                            Navigator.pop(context);
                           },
-                          icon: Icon(Icons.add_circle, size: 40, color: Colors.teal[200],),
                         )
                       ],
                     );  
                   }
                 );
               },
-              icon: Icon(Icons.group_add),
+              icon: Icon(Icons.delete, color: Colors.red,),
+            ) : IconButton(
+              onPressed: (){},
+              icon: Icon(Icons.delete, color: Color.fromRGBO(0, 0, 0, 0),),
             ),
           ],
         ),
       ),
     );
+  }
+
+
+
+
+  _renameList(BuildContext context) async {
+
+    final _formKey = GlobalKey<FormState>();
+
+    String inputName;
+
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Name ändern'),
+          content: Form(
+            key: _formKey,
+            child: TextFormField(
+              validator: (val) => val.isEmpty ? '???' : null,
+              initialValue: listName,
+              textCapitalization: TextCapitalization.sentences,
+              autofocus: true,
+              onChanged: (String value) {
+                inputName = value;
+              },
+            ),
+          ),
+          actions: [
+            IconButton(
+              padding: EdgeInsets.fromLTRB(0, 0, 30, 30),
+              onPressed: () async {
+                if(_formKey.currentState.validate()) {
+                  await DatabaseServicesWOuid().changelistName(listId, inputName.trim());
+                  Navigator.pop(context);
+                }
+              },
+              icon: Icon(Icons.check, size: 40, color: Colors.teal[200],),
+            )
+          ],
+        );     
+      }
+    );      
+  }
+
+
+
+  _leaveList(BuildContext context) async {
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Text('Liste endgültig verlassen?'),
+          actions: [
+            FlatButton(
+              onPressed: () async {
+                  await DatabaseServicesWOuid().deleteMember(userSettings.email, listId);
+                  Navigator.pop(context);
+              }, 
+              child: Text('Verlassen', style: TextStyle(color: Colors.red),),
+            )
+          ],
+        );     
+      }
+    );
+        
   }
 }
 
